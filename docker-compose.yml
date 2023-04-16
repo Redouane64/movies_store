@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: movies_sql_server_database
+    environment:
+     - ACCEPT_EULA=Y
+     - MSSQL_SA_PASSWORD=User@123
+    ports:
+     - "1433:1433"
