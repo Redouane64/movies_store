@@ -67,3 +67,42 @@ create table store.collection_movies(
     collection_id uniqueidentifier not null references store.collections(id),
     movie_id uniqueidentifier not null references  store.movies(id),
 );
+
+/* stored procedure to fetch movies ordered by a customer */
+create procedure store.get_ordered_movies_by_customer_id
+    as
+    begin
+        select
+            m.title,
+            m.description,
+            m.genre_id,
+            m.release_year,
+            created_at as order_at
+        from store.orders
+        left join store.order_items oi on orders.id = oi.order_id
+        left join store.movies m on oi.item_id = m.id
+    end
+
+
+alter table store.ratings
+add rating int not null;
+
+/* select top 10 movies based on their average rating */
+create procedure store.get_top_ten_movies
+    as
+    begin
+        select id, title, description, release_year, average_rating as rating from (
+            select top (10)
+                m.id,
+                m.title,
+                m.release_year,
+                m.description,
+                avg(r.rating) as average_rating
+            from store.ratings r
+                   left join store.movies m on m.id = r.movie_id
+            group by m.id
+            order by average_rating) as top_ten
+    end
+
+/* example sp execution */
+exec store.get_top_ten_movies;
